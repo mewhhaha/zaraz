@@ -7,3 +7,4 @@ node_modules
 public/entry.worker.js
 
 .wrangler
+.dev.vars

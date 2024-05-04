@@ -69,6 +69,7 @@ module.exports = {
             extensions: [".ts", ".tsx"],
           },
           typescript: {
+            project: path.join(__dirname, "./tsconfig.json"),
             alwaysTryTypes: true,
           },
         },
@@ -88,4 +89,15 @@ module.exports = {
       },
     },
   ],
+  rules: {
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        argsIgnorePattern: "^_",
+        caughtErrorsIgnorePattern: "^_",
+        destructuredArrayIgnorePattern: "^_",
+        varsIgnorePattern: "^_",
+      },
+    ],
+  },
 };
