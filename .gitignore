@@ -1,3 +1,10 @@
 node_modules
-dist
-.DS_Store
+
+/.cache
+/build
+.env
+
+public/entry.worker.js
+
+.wrangler
+.dev.vars
