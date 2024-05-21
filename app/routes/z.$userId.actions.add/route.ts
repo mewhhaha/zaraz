@@ -6,7 +6,6 @@ import { Table } from "~/utils/db";
 
 const parseFormData = type({
   name: "string",
-  "position?": "'top'|'bottom'",
 });
 
 export const action = async ({ request, context }: ActionFunctionArgs) => {
@@ -24,35 +23,12 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 
   const row = generateRow({ id, userId: user.id, name: data.name });
 
-  const position = data.position ?? "top";
-  if (position) {
-    await addTop(context.cloudflare.env.DB, row);
-  } else {
-    await addBottom(context.cloudflare.env.DB, row);
-  }
+  await addTop(context.cloudflare.env.DB, row);
 
   return null;
 };
 
 const addTop = async (db: D1Database, row: Table["todos"]) => {
-  const keys = Object.keys(row);
-  const qs = new Array(keys.length).fill("?");
-  const values = Object.values(row);
-
-  const insert = db
-    .prepare(`INSERT INTO todos (${keys}) VALUES (${qs})`)
-    .bind(...values);
-
-  const increment = db
-    .prepare(
-      `UPDATE todos SET priority = priority + 1 WHERE user_id = ? AND done = ? AND id != ? `,
-    )
-    .bind(row.user_id, false, row.id);
-
-  await db.batch([increment, insert]);
-};
-
-const addBottom = async (db: D1Database, row: Table["todos"]) => {
   const keys = Object.keys(row);
   const qs = new Array(keys.length).fill("?");
   const values = Object.values(row);

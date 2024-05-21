@@ -83,11 +83,7 @@ export default function Route() {
             />
           </div>
           <div className="col-span-2 flex">
-            <Button
-              name="position"
-              value="bottom"
-              className="mx-auto w-full max-w-screen-md flex-none border-blue-200 bg-blue-100"
-            >
+            <Button className="mx-auto w-full max-w-screen-md flex-none border-blue-200 bg-blue-100">
               {"I'll do it in a moment"}
             </Button>
           </div>
