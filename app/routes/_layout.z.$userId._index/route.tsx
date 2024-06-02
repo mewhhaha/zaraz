@@ -30,6 +30,37 @@ const getNumberOfDone = async (db: D1Database, userId: string) => {
   return result?.["COUNT(*)"] || 0;
 };
 
+const swr = async <T,>(
+  cf: Cloudflare,
+  task: Promise<T>,
+  { request, namespace }: { request: Request; namespace: string },
+) => {
+  const cache = await cf.caches.open(namespace);
+
+  const cacheKey = new Request(request.url, {
+    headers: { "Cache-Control": "max-age=604800" },
+    method: "GET",
+  });
+  const cached = await cache.match(cacheKey);
+
+  const revalidate = async () => {
+    const data = await task;
+    const response = new Response(JSON.stringify(data), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+    await cache.put(cacheKey, response);
+  };
+
+  cf.ctx.waitUntil(revalidate());
+
+  if (cached) {
+    return (await cached.json()) as Awaited<typeof task>;
+  }
+
+  return await task;
+};
+
 export const loader = async ({
   request,
   context,
@@ -39,8 +70,10 @@ export const loader = async ({
   if (user.id !== userId) {
     throw redirect("/403");
   }
+
+  const task = getTodos(context.cloudflare.env.DB, userId);
   return defer({
-    data: await getTodos(context.cloudflare.env.DB, userId),
+    data: await swr(context.cloudflare, task, { request, namespace: "todos" }),
     numberOfDone: getNumberOfDone(context.cloudflare.env.DB, userId),
   });
 };
