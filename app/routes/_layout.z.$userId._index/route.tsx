@@ -33,14 +33,10 @@ const getNumberOfDone = async (db: D1Database, userId: string) => {
 const swr = async <T,>(
   cf: Cloudflare,
   task: Promise<T>,
-  { request, namespace }: { request: Request; namespace: string },
+  { cacheKey, namespace }: { cacheKey: Request; namespace: string },
 ) => {
   const cache = await cf.caches.open(namespace);
 
-  const cacheKey = new Request(request.url, {
-    headers: { "Cache-Control": "max-age=604800" },
-    method: "GET",
-  });
   const cached = await cache.match(cacheKey);
 
   const revalidate = async () => {
@@ -71,9 +67,13 @@ export const loader = async ({
     throw redirect("/403");
   }
 
+  const cacheKey = new Request(request.url, {
+    headers: { "Cache-Control": "max-age=604800" },
+    method: "GET",
+  });
   const task = getTodos(context.cloudflare.env.DB, userId);
   return defer({
-    data: await swr(context.cloudflare, task, { request, namespace: "todos" }),
+    data: await swr(context.cloudflare, task, { cacheKey, namespace: "todos" }),
     numberOfDone: getNumberOfDone(context.cloudflare.env.DB, userId),
   });
 };
