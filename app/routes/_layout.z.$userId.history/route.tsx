@@ -1,8 +1,8 @@
 import { LoaderFunctionArgs, defer, redirect } from "@remix-run/cloudflare";
-import { useLoaderData } from "@remix-run/react";
+import { Await, useLoaderData } from "@remix-run/react";
 import { authenticate } from "~/utils/auth";
 import { Table, camelCaseKeysFromSnakeCase } from "~/utils/db";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { swr } from "~/utils/cache";
 import { cx } from "~/styles/cx";
 import { intlFormat, intlFormatDistance } from "date-fns";
@@ -34,69 +34,87 @@ export const loader = async ({
   });
   const task = getRecentTodos(context.cloudflare.env.DB, userId);
   return defer({
-    data: await swr(context.cloudflare, task, { cacheKey, namespace: "todos" }),
+    data: swr(context.cloudflare, task, { cacheKey, namespace: "todos" }),
+    now: Date.now(),
   });
 };
 
 export default function Route() {
-  const { data } = useLoaderData<typeof loader>();
+  const { data, now } = useLoaderData<typeof loader>();
 
   return (
     <main className="overflow-auto px-4">
       <ul className="mt-10 flex flex-col gap-8">
-        {data.map((todo) => {
-          return (
-            <li key={todo.id} className="group">
-              <SmallRibbon className="group-odd:after:bg-green-200 group-even:after:bg-green-700">
-                <dl>
-                  <div>
-                    <dt className="sr-only">Done At</dt>
-                    <dd className="text-start text-lg font-normal group-odd:text-gray-800 group-even:text-gray-200">
-                      Done <ClientDate value={new Date(todo.doneAt)} />
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="sr-only">Label</dt>
-                    <dd className="text-start text-2xl group-odd:text-black group-even:text-gray-100">
-                      {todo.name}
-                    </dd>
-                  </div>
-                </dl>
-              </SmallRibbon>
+        <Suspense
+          fallback={
+            <li>
+              <SmallRibbon className="after:bg-green-200"></SmallRibbon>
             </li>
-          );
-        })}
+          }
+        >
+          <Await resolve={data}>
+            {(todos) => {
+              return todos.map((todo) => {
+                return (
+                  <li key={todo.id} className="group">
+                    <SmallRibbon className="group-odd:after:bg-green-200 group-even:after:bg-green-700">
+                      <dl>
+                        <div>
+                          <dt className="sr-only">Done At</dt>
+                          <dd className="text-start text-lg font-normal group-odd:text-gray-800 group-even:text-gray-200">
+                            Done{" "}
+                            <ClientDate
+                              then={new Date(todo.doneAt)}
+                              now={now}
+                            />
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="sr-only">Label</dt>
+                          <dd className="text-start text-2xl group-odd:text-black group-even:text-gray-100">
+                            {todo.name}
+                          </dd>
+                        </div>
+                      </dl>
+                    </SmallRibbon>
+                  </li>
+                );
+              });
+            }}
+          </Await>
+        </Suspense>
       </ul>
     </main>
   );
 }
 
 type ClientDateProps = {
-  value: Date;
+  then: Date;
+  now: number;
 };
 
-const ClientDate = ({ value }: ClientDateProps) => {
-  const [appear, setAppear] = useState(false);
+const ClientDate = ({ then, now }: ClientDateProps) => {
+  const [appear, setAppear] = useState(true);
 
   useEffect(() => {
     setAppear(true);
-  }, [value]);
+  }, []);
 
   return (
     <time
       title={
         appear
           ? intlFormat(
-              value,
+              then,
               { dateStyle: "long", timeStyle: "medium" },
               { locale: "en-SV" },
             )
-          : value.toISOString()
+          : then.toISOString()
       }
-      dateTime={value.toISOString()}
+      dateTime={appear ? then.toISOString() : undefined}
     >
       {appear
-        ? intlFormatDistance(value, new Date(), { locale: "en-SV" })
+        ? intlFormatDistance(then, new Date(now), { locale: "en-SV" })
         : "-"}
     </time>
   );
@@ -108,9 +126,7 @@ const SmallRibbon = (props: SmallRibbonProps) => {
   const [appear, setAppear] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      setAppear(true);
-    }
+    setAppear(true);
   }, []);
 
   return (

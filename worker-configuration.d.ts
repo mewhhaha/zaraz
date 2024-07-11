@@ -2,8 +2,9 @@
 // by running `wrangler types`
 
 interface Env {
-	CLIENT_SECRET: string;
-	CLIENT_ID: string;
-	AUTH_SECRET: string;
-	DB: D1Database;
+  CLIENT_SECRET: string;
+  CLIENT_ID: string;
+  AUTH_SECRET: string;
+  DB: D1Database;
+  VERSION: string;
 }
