@@ -111,7 +111,7 @@ const ClientDate = ({ then, now }: ClientDateProps) => {
             )
           : then.toISOString()
       }
-      dateTime={appear ? then.toISOString() : undefined}
+      dateTime={then.toISOString()}
     >
       {appear
         ? intlFormatDistance(then, new Date(now), { locale: "en-SV" })
