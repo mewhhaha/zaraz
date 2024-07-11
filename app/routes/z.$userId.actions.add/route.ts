@@ -1,7 +1,9 @@
 import { ActionFunctionArgs } from "@remix-run/cloudflare";
+import { generatePath } from "@remix-run/react";
 
 import { type } from "arktype";
 import { authenticate } from "~/utils/auth";
+import { bust } from "~/utils/cache";
 import { Table } from "~/utils/db";
 
 const parseFormData = type({
@@ -11,12 +13,10 @@ const parseFormData = type({
 export const action = async ({ request, context }: ActionFunctionArgs) => {
   const user = await authenticate(context.cloudflare, request);
   const formData = await request.formData();
-  const { data, problems } = parseFormData(
-    Object.fromEntries([...formData.entries()]),
-  );
+  const data = parseFormData(Object.fromEntries([...formData.entries()]));
 
-  if (problems) {
-    return { summary: problems.summary };
+  if (data instanceof type.errors) {
+    return { summary: data.summary };
   }
 
   const id = crypto.randomUUID();
@@ -24,6 +24,14 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
   const row = generateRow({ id, userId: user.id, name: data.name });
 
   await addTop(context.cloudflare.env.DB, row);
+
+  const cacheKey = new Request(
+    new URL(
+      generatePath("/z/:userId/home", { userId: user.id }),
+      new URL(request.url).origin,
+    ),
+  );
+  await bust(context.cloudflare, { cacheKey, namespace: "todos" });
 
   return null;
 };

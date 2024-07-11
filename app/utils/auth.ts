@@ -37,9 +37,9 @@ export const serializeUserCookie = (cf: Cloudflare, value: User) => {
 const parseUserCookie = async (cf: Cloudflare, request: Request) => {
   const value = await createUserCookie(cf).parse(request.headers.get("Cookie"));
 
-  const { data, problems } = parseUser(value);
-  if (problems) {
-    console.log(problems.summary);
+  const data = parseUser(value);
+  if (data instanceof type.errors) {
+    console.log(data.summary);
     return undefined;
   }
 
@@ -152,8 +152,8 @@ export const exchangeCode = async (cf: Cloudflare, url: URL) => {
 
   const json = await response.json();
 
-  const { data, problems } = parseAuth(json);
-  if (problems) {
+  const data = parseAuth(json);
+  if (data instanceof type.errors) {
     return new failure("unrecognized_token", { status: 500 });
   }
 
