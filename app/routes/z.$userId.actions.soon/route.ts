@@ -1,6 +1,6 @@
 import { ActionFunctionArgs } from "@remix-run/cloudflare";
 import { type } from "arktype";
-import { authenticate } from "~/utils/auth";
+import { authenticate } from "~/utils/auth.server";
 
 const resortTodo = async (
   db: D1Database,

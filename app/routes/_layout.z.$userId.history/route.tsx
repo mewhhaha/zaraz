@@ -1,9 +1,9 @@
 import { LoaderFunctionArgs, defer, redirect } from "@remix-run/cloudflare";
 import { Await, useLoaderData } from "@remix-run/react";
-import { authenticate } from "~/utils/auth";
-import { Table, camelCaseKeysFromSnakeCase } from "~/utils/db";
+import { authenticate } from "~/utils/auth.server";
+import { Table, camelCaseKeysFromSnakeCase } from "~/utils/db.server";
 import { Suspense, useEffect, useState } from "react";
-import { swr } from "~/utils/cache";
+import { swr } from "~/utils/cache.server";
 import { cx } from "~/styles/cx";
 import { intlFormat, intlFormatDistance } from "date-fns";
 
@@ -58,7 +58,7 @@ export default function Route() {
                 return (
                   <li key={todo.id} className="group">
                     <SmallRibbon className="group-odd:after:bg-green-200 group-even:after:bg-green-700">
-                      <dl>
+                      {/* <dl>
                         <div>
                           <dt className="sr-only">Done At</dt>
                           <dd className="text-start text-lg font-normal group-odd:text-gray-800 group-even:text-gray-200">
@@ -75,7 +75,7 @@ export default function Route() {
                             {todo.name}
                           </dd>
                         </div>
-                      </dl>
+                      </dl> */}
                     </SmallRibbon>
                   </li>
                 );
@@ -122,7 +122,7 @@ const ClientDate = ({ then, now }: ClientDateProps) => {
 
 type SmallRibbonProps = JSX.IntrinsicElements["p"];
 
-const SmallRibbon = (props: SmallRibbonProps) => {
+const SmallRibbon = ({ children, ...props }: SmallRibbonProps) => {
   const [appear, setAppear] = useState(false);
 
   useEffect(() => {
@@ -139,6 +139,8 @@ const SmallRibbon = (props: SmallRibbonProps) => {
         appear ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0",
         props.className,
       )}
-    />
+    >
+      {children}
+    </p>
   );
 };

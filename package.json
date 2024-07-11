@@ -16,8 +16,6 @@
     "db.remote": "wrangler d1 execute d1-zaraz-app --remote --file=./migrations/schema-001.sql"
   },
   "dependencies": {
-    "@remix-pwa/sw": "^3.0.7",
-    "@remix-pwa/worker-runtime": "^2.1.2",
     "@remix-run/cloudflare": "^2.10.2",
     "@remix-run/cloudflare-pages": "^2.10.2",
     "@remix-run/react": "^2.10.2",
@@ -28,8 +26,8 @@
     "isbot": "^5.1.12",
     "jwt-decode": "^4.0.0",
     "miniflare": "^3.20240701.0",
-    "react": "19.0.0-rc-85acf2d195-20240711",
-    "react-dom": "19.0.0-rc-85acf2d195-20240711"
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240620.0",

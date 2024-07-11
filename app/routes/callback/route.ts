@@ -4,8 +4,8 @@ import {
   exchangeCode,
   findReturnResponse,
   serializeUserCookie,
-} from "~/utils/auth";
-import { Table } from "~/utils/db";
+} from "~/utils/auth.server";
+import { Table } from "~/utils/db.server";
 
 export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   const url = new URL(request.url);

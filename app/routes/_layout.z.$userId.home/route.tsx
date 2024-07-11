@@ -1,12 +1,12 @@
 import { LoaderFunctionArgs, defer, redirect } from "@remix-run/cloudflare";
 import { Await, Form, useLoaderData } from "@remix-run/react";
-import { authenticate } from "~/utils/auth";
-import { Table, camelCaseKeysFromSnakeCase } from "~/utils/db";
+import { authenticate } from "~/utils/auth.server";
+import { Table, camelCaseKeysFromSnakeCase } from "~/utils/db.server";
 import ConfettiExplosion from "react-confetti-explosion";
 import { cx } from "~/styles/cx";
 import { Suspense, startTransition, useEffect, useState } from "react";
 import { Button } from "~/components/Button";
-import { swr } from "~/utils/cache";
+import { swr } from "~/utils/cache.server";
 
 const getTodos = async (db: D1Database, userId: string) => {
   const result = await db

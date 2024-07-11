@@ -2,9 +2,9 @@ import { ActionFunctionArgs } from "@remix-run/cloudflare";
 import { generatePath } from "@remix-run/react";
 
 import { type } from "arktype";
-import { authenticate } from "~/utils/auth";
-import { bust } from "~/utils/cache";
-import { Table } from "~/utils/db";
+import { authenticate } from "~/utils/auth.server";
+import { bust } from "~/utils/cache.server";
+import { Table } from "~/utils/db.server";
 
 const parseFormData = type({
   name: "string",

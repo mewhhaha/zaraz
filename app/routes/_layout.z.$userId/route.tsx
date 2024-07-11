@@ -1,6 +1,6 @@
 import { LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { Link, NavLink, NavLinkProps, Outlet } from "@remix-run/react";
-import { authenticate } from "~/utils/auth";
+import { authenticate } from "~/utils/auth.server";
 
 import { Phonetic } from "~/components/Phonetic";
 import { Subtitle } from "~/components/Subtitle";
