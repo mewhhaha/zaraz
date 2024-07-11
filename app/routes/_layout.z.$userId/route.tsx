@@ -16,7 +16,7 @@ export default function Route() {
   return (
     <>
       <header>
-        <div className="flex">
+        <div className="flex items-start">
           <hgroup className="p-1">
             <Heading1 aria-describedby="desription">
               zaraz
@@ -33,7 +33,7 @@ export default function Route() {
             logout
           </Link>
         </div>
-        <nav>
+        <nav className="px-1">
           <ul className="flex gap-2">
             <li>
               <PageLink to="home">Home</PageLink>

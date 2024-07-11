@@ -42,7 +42,7 @@ export default function Route() {
   const { data } = useLoaderData<typeof loader>();
 
   return (
-    <main className="px-4">
+    <main className="overflow-auto px-4">
       <ul className="mt-10 flex flex-col gap-8">
         {data.map((todo) => {
           return (
@@ -76,19 +76,28 @@ type ClientDateProps = {
 };
 
 const ClientDate = ({ value }: ClientDateProps) => {
-  const [date, setDate] = useState<Date | null>(null);
+  const [appear, setAppear] = useState(false);
+
   useEffect(() => {
-    setDate(value);
+    setAppear(true);
   }, [value]);
 
   return (
     <time
       title={
-        date ? intlFormat(date, { dateStyle: "long", timeStyle: "medium" }) : ""
+        appear
+          ? intlFormat(
+              value,
+              { dateStyle: "long", timeStyle: "medium" },
+              { locale: "en-SV" },
+            )
+          : value.toISOString()
       }
-      dateTime={date?.toISOString()}
+      dateTime={value.toISOString()}
     >
-      {date ? intlFormatDistance(date, new Date()) : "-"}
+      {appear
+        ? intlFormatDistance(value, new Date(), { locale: "en-SV" })
+        : "-"}
     </time>
   );
 };
@@ -96,12 +105,12 @@ const ClientDate = ({ value }: ClientDateProps) => {
 type SmallRibbonProps = JSX.IntrinsicElements["p"];
 
 const SmallRibbon = (props: SmallRibbonProps) => {
-  const [appear, setAppear] = useState(
-    typeof window === "undefined" ? true : false,
-  );
+  const [appear, setAppear] = useState(false);
 
   useEffect(() => {
-    setAppear(true);
+    if (typeof window !== "undefined") {
+      setAppear(true);
+    }
   }, []);
 
   return (
