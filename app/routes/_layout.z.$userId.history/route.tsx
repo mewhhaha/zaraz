@@ -43,7 +43,7 @@ export default function Route() {
   const { data, now } = useLoaderData<typeof loader>();
 
   return (
-    <main className="overflow-auto px-4">
+    <main className="grow overflow-auto px-4 pb-20">
       <ul className="mt-10 flex flex-col gap-8">
         <Suspense
           fallback={

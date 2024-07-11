@@ -58,7 +58,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         />
         <link rel="manifest" href="/site.webmanifest" />
       </head>
-      <body className="mx-auto max-w-screen-xl focus:[&_*]:outline-2 focus:[&_*]:outline-offset-8">
+      <body className="mx-auto flex max-h-dvh max-w-screen-xl flex-col focus:[&_*]:outline-2 focus:[&_*]:outline-offset-8">
         {children}
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
