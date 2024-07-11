@@ -4,8 +4,8 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "build": "remix vite:build",
-    "upload": "VERSION=$(git rev-parse HEAD) && wrangler pages deploy",
+    "build": "VITE_VERSION=$(git rev-parse HEAD) && remix vite:build",
+    "upload": "wrangler pages deploy",
     "logs": "wrangler pages deployment tail --project-name zaraz-app",
     "dev": "remix vite:dev",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",

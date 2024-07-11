@@ -2,9 +2,6 @@ name = "zaraz-app"
 pages_build_output_dir = "./build/client"
 compatibility_date = "2024-05-12"
 
-[vars]
-VERSION = "local"
-
 [[d1_databases]]
 binding = "DB"
 database_name = "d1-zaraz-app"

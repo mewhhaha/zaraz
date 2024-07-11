@@ -1,8 +1,6 @@
-import { LoaderFunctionArgs } from "@remix-run/cloudflare";
-
-const script = (version: string) => `
+const script = `
 // Establish a cache name
-const cacheName = "${version}";
+const cacheName = "${import.meta.env.VITE_VERSION}";
 
 self.addEventListener("fetch", (event) => {
   if (event.request.destination === "image") {
@@ -23,6 +21,13 @@ self.addEventListener("fetch", (event) => {
 });
 `;
 
-export const loader = ({ context }: LoaderFunctionArgs) => {
-  return new Response(script(context.cloudflare.env.VERSION), {});
+export const loader = () => {
+  return new Response(script, {
+    status: 200,
+    headers: {
+      "Cache-Control":
+        "public, max-age=14400, s-maxage=604800, must-revalidate",
+      "Content-Type": "application/javascript",
+    },
+  });
 };

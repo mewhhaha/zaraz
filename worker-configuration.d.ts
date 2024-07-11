@@ -6,5 +6,4 @@ interface Env {
   CLIENT_ID: string;
   AUTH_SECRET: string;
   DB: D1Database;
-  VERSION: string;
 }
