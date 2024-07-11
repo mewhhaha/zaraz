@@ -83,7 +83,6 @@ const insertUser = async (
   const qs = new Array(keys.length).fill("?");
   const values = Object.values(row);
 
-  console.log(`INSERT INTO users (${keys}) VALUES (${qs})`);
   await db
     .prepare(`INSERT INTO users (${keys}) VALUES (${qs})`)
     .bind(...values)

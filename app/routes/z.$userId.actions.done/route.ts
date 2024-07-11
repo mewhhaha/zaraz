@@ -23,10 +23,12 @@ const parseFormData = type({
 export const action = async ({ request, context }: ActionFunctionArgs) => {
   const user = await authenticate(context.cloudflare, request);
   const formData = await request.formData();
-  const data = parseFormData(Object.fromEntries([...formData.entries()]));
+  const { data, problems } = parseFormData(
+    Object.fromEntries([...formData.entries()]),
+  );
 
-  if (data instanceof type.errors) {
-    return { summary: data.summary };
+  if (problems) {
+    return { summary: problems.summary };
   }
 
   await doneTodo(context.cloudflare.env.DB, {
