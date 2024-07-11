@@ -58,7 +58,7 @@ export default function Route() {
                 return (
                   <li key={todo.id} className="group">
                     <SmallRibbon className="group-odd:after:bg-green-200 group-even:after:bg-green-700">
-                      {/* <dl>
+                      <dl>
                         <div>
                           <dt className="sr-only">Done At</dt>
                           <dd className="text-start text-lg font-normal group-odd:text-gray-800 group-even:text-gray-200">
@@ -75,7 +75,7 @@ export default function Route() {
                             {todo.name}
                           </dd>
                         </div>
-                      </dl> */}
+                      </dl>
                     </SmallRibbon>
                   </li>
                 );
