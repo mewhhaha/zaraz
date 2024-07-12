@@ -30,5 +30,9 @@ export const bust = async (
   { cacheKey, namespace }: { cacheKey: Request; namespace: "todos" },
 ) => {
   const cache = await cf.caches.open(namespace);
-  await cache.delete(cacheKey);
+  try {
+    await cache.delete(cacheKey);
+  } catch {
+    // ignore
+  }
 };

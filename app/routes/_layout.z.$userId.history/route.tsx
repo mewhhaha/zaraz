@@ -49,7 +49,7 @@ export default function Route() {
 
   return (
     <main className="grow overflow-auto px-4 pb-20">
-      <ul className="mt-10 flex flex-col gap-8">
+      <ul className="mt-10 flex flex-col gap-20">
         <Suspense fallback={null}>
           <Await resolve={data}>
             {(todos) => {
@@ -60,10 +60,10 @@ export default function Route() {
                 return (
                   <li key={day.toDateString()}>
                     <ClientDate
-                      className="text-2xl tracking-widest text-gray-500"
+                      className="text-2xl tracking-widest text-gray-900"
                       date={startOfDay(day)}
                     />
-                    <ul className="space-y-1">
+                    <ul className="space-y-1 rounded-xl bg-green-100 px-10 py-2">
                       {todos.map((todo, i) => {
                         return (
                           <li key={todo.id} className="group">
@@ -190,9 +190,7 @@ const SmallRibbon = ({ children, delay, ...props }: SmallRibbonProps) => {
     <div
       {...props}
       className={cx(
-        "relative flex grow text-balance px-10 py-2 text-black",
-        "after:absolute after:inset-0 after:-z-10 group-odd:after:skew-x-6 group-even:after:-skew-x-6",
-        "transition-all duration-300 ease-in-out",
+        "bg-green-200 px-10 pb-2 pt-1 transition-all duration-300 ease-in-out group-first:rounded-t-xl group-last:rounded-b-xl",
         appear ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0",
         props.className,
       )}
