@@ -49,6 +49,10 @@ type LowerCaseLetter =
   | "y"
   | "z";
 
+export type Todo = {
+  [K in keyof Table["todos"] as CamelCaseFromSnakeCase<K>]: Table["todos"][K];
+};
+
 type CamelCaseFromSnakeCase<T extends string> =
   T extends `${infer pre}_${infer letter extends LowerCaseLetter}${infer post}`
     ? `${pre}${Uppercase<letter>}${CamelCaseFromSnakeCase<post>}`
