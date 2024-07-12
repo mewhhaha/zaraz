@@ -58,23 +58,23 @@ export default function Route() {
               return grouped.map((todos) => {
                 const day = new Date(todos[0].doneAt);
                 return (
-                  <li key={day.toDateString()} className="group">
+                  <li key={day.toDateString()}>
                     <ClientDate
-                      className="text-xl text-gray-500"
+                      className="text-2xl tracking-widest text-gray-500"
                       date={startOfDay(day)}
                     />
                     <ul className="space-y-1">
                       {todos.map((todo, i) => {
                         return (
-                          <li key={todo.id}>
+                          <li key={todo.id} className="group">
                             <SmallRibbon
                               delay={i * 100}
-                              className="group-odd:after:bg-green-200 group-even:after:bg-green-700"
+                              className="group-odd:after:bg-green-200 group-even:after:bg-blue-200"
                             >
                               <dl>
                                 <div>
                                   <dt className="sr-only">Done At</dt>
-                                  <dd className="group-odd:text-gray-600 group-even:text-gray-100">
+                                  <dd className="text-gray-600">
                                     <ClientTime
                                       date={new Date(todo.doneAt)}
                                       today={new Date(today)}
@@ -83,7 +83,7 @@ export default function Route() {
                                 </div>
                                 <div>
                                   <dt className="sr-only">Label</dt>
-                                  <dd className="text-2xl font-semibold group-odd:text-black group-even:text-gray-100">
+                                  <dd className="text-2xl font-semibold text-black">
                                     {todo.name}
                                   </dd>
                                 </div>
@@ -191,7 +191,7 @@ const SmallRibbon = ({ children, delay, ...props }: SmallRibbonProps) => {
       {...props}
       className={cx(
         "relative flex grow text-balance px-10 py-2 text-black",
-        "after:absolute after:inset-0 after:-z-10 after:-skew-x-6",
+        "after:absolute after:inset-0 after:-z-10 group-odd:after:skew-x-6 group-even:after:-skew-x-6",
         "transition-all duration-300 ease-in-out",
         appear ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0",
         props.className,
