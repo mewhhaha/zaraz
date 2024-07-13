@@ -95,55 +95,53 @@ export default function Route() {
                               delay={i * 100}
                               className="group-odd:after:bg-green-200 group-even:after:bg-blue-200"
                             >
-                              <div className="flex items-end justify-between">
-                                <dl>
-                                  <div>
-                                    <dt className="sr-only">Done At</dt>
-                                    <dd className="text-gray-600">
-                                      <ClientTime
-                                        date={new Date(todo.doneAt)}
-                                        today={new Date(today)}
-                                      />
-                                    </dd>
-                                  </div>
-                                  <div>
-                                    <dt className="sr-only">Label</dt>
-                                    <dd className="text-2xl font-semibold text-black">
-                                      {todo.name}
-                                    </dd>
-                                  </div>
-                                </dl>
-                                <Form
-                                  method="DELETE"
-                                  action="../actions/remove"
-                                  navigate={false}
-                                >
-                                  <input
-                                    type="hidden"
-                                    name="id"
-                                    value={todo.id}
-                                  />
-                                  <button
-                                    disabled={removing}
-                                    className="rounded border border-red-500 px-4 py-2 font-semibold text-red-800 hover:border hover:bg-red-600 hover:text-white"
-                                    onClick={(event) => {
-                                      event.preventDefault();
-                                      const answer = window.confirm(
-                                        `Are you sure you want to remove "${todo.name}"?`,
-                                      );
-                                      if (answer) {
-                                        event.currentTarget.form?.requestSubmit();
-                                        setRemoved((removed) => [
-                                          ...removed,
-                                          todo.id,
-                                        ]);
-                                      }
-                                    }}
+                              <dl>
+                                <div className="flex items-center justify-between">
+                                  <dt className="sr-only">Done At</dt>
+                                  <dd className="text-gray-600">
+                                    <ClientTime
+                                      date={new Date(todo.doneAt)}
+                                      today={new Date(today)}
+                                    />
+                                  </dd>
+                                  <Form
+                                    method="DELETE"
+                                    action="../actions/remove"
+                                    navigate={false}
                                   >
-                                    Remove
-                                  </button>
-                                </Form>
-                              </div>
+                                    <input
+                                      type="hidden"
+                                      name="id"
+                                      value={todo.id}
+                                    />
+                                    <button
+                                      disabled={removing}
+                                      className="rounded border border-transparent px-4 py-1 font-semibold text-red-800 hover:border hover:border-red-200 hover:bg-red-600 hover:text-white"
+                                      onClick={(event) => {
+                                        event.preventDefault();
+                                        const answer = window.confirm(
+                                          `Are you sure you want to remove "${todo.name}"?`,
+                                        );
+                                        if (answer) {
+                                          event.currentTarget.form?.requestSubmit();
+                                          setRemoved((removed) => [
+                                            ...removed,
+                                            todo.id,
+                                          ]);
+                                        }
+                                      }}
+                                    >
+                                      Remove
+                                    </button>
+                                  </Form>
+                                </div>
+                                <div>
+                                  <dt className="sr-only">Label</dt>
+                                  <dd className="text-2xl font-semibold text-black">
+                                    {todo.name}
+                                  </dd>
+                                </div>
+                              </dl>
                             </SmallRibbon>
                           </li>
                         );
