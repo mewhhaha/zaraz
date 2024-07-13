@@ -49,7 +49,7 @@ export default function Route() {
   const [removed, setRemoved] = useState<string[]>([]);
 
   return (
-    <main className="mt-40 grow overflow-auto px-4 pb-20">
+    <main className="mt-28 grow overflow-auto px-4 pb-20">
       <ul className="flex flex-col gap-20">
         <Suspense
           fallback={
