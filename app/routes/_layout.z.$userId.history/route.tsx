@@ -50,7 +50,7 @@ export default function Route() {
 
   return (
     <main className="mt-40 grow overflow-auto px-4 pb-20">
-      <ul className="mt-10 flex flex-col gap-20">
+      <ul className="flex flex-col gap-20">
         <Suspense
           fallback={
             <li>
