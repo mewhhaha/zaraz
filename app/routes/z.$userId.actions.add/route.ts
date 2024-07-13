@@ -5,12 +5,15 @@ import { type } from "arktype";
 import { authenticate } from "~/utils/auth.server";
 import { bust } from "~/utils/cache.server";
 import { Table } from "~/utils/db.server";
+import { invariant } from "~/utils/invariant";
 
 const parseFormData = type({
   name: "string",
 });
 
 export const action = async ({ request, context }: ActionFunctionArgs) => {
+  invariant(request.method === "POST", "Method Not Allowed");
+
   const user = await authenticate(context.cloudflare, request);
   const formData = await request.formData();
   const data = parseFormData(Object.fromEntries([...formData.entries()]));

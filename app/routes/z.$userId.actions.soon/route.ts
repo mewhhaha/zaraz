@@ -1,6 +1,7 @@
 import { ActionFunctionArgs } from "@remix-run/cloudflare";
 import { type } from "arktype";
 import { authenticate } from "~/utils/auth.server";
+import { invariant } from "~/utils/invariant";
 
 const resortTodo = async (
   db: D1Database,
@@ -19,6 +20,8 @@ const parseFormData = type({
 });
 
 export const action = async ({ request, context }: ActionFunctionArgs) => {
+  invariant(request.method === "POST", "Method Not Allowed");
+
   const user = await authenticate(context.cloudflare, request);
   const formData = await request.formData();
   const data = parseFormData(Object.fromEntries([...formData.entries()]));
