@@ -80,7 +80,7 @@ export default function Route() {
                       className="text-2xl tracking-widest text-gray-900"
                       date={startOfDay(day)}
                     />
-                    <ul className="space-y-1 rounded-xl bg-green-100 px-10 py-2">
+                    <ul className="space-y-1 rounded-xl bg-green-100 px-4 py-2 sm:px-10">
                       {todos.map((todo, i) => {
                         const removing = removed.includes(todo.id);
                         return (
@@ -252,7 +252,7 @@ const SmallRibbon = ({
     <div
       {...props}
       className={cx(
-        "bg-green-200 px-10 pb-2 pt-1 duration-300 ease-in-out group-first:rounded-t-xl group-last:rounded-b-xl",
+        "bg-green-200 px-4 pb-2 pt-1 duration-300 ease-in-out group-first:rounded-t-xl group-last:rounded-b-xl sm:px-10",
         appear ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0",
         transition ? "transition-all" : "transition-none",
         props.className,
