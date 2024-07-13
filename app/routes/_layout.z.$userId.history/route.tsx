@@ -53,13 +53,19 @@ export default function Route() {
       <ul className="mt-10 flex flex-col gap-20">
         <Suspense
           fallback={
-            <ul className="animate-pulse space-y-1 bg-gray-100 px-10 py-2">
-              {new Array(10).fill(
-                <SmallRibbon delay={0} transition={false}>
-                  {" "}
-                </SmallRibbon>,
-              )}
-            </ul>
+            <li>
+              <ClientMonth
+                className="text-2xl tracking-widest text-gray-900"
+                date={startOfDay(new Date(today))}
+              />
+              <ul className="animate-pulse space-y-1 bg-gray-100 px-10 py-2">
+                {new Array(10).fill(
+                  <SmallRibbon delay={0} transition={false}>
+                    {" "}
+                  </SmallRibbon>,
+                )}
+              </ul>
+            </li>
           }
         >
           <Await resolve={data}>
@@ -70,7 +76,7 @@ export default function Route() {
                 const day = new Date(todos[0].doneAt);
                 return (
                   <li key={day.toDateString()}>
-                    <ClientDate
+                    <ClientMonth
                       className="text-2xl tracking-widest text-gray-900"
                       date={startOfDay(day)}
                     />
@@ -172,11 +178,11 @@ const groupByMonth = (todos: Todo[]) => {
   return groupedByMonth;
 };
 
-type ClientDateProps = JSX.IntrinsicElements["time"] & {
+type ClientMonthProps = JSX.IntrinsicElements["time"] & {
   date: Date;
 };
 
-const ClientDate = ({ date, ...props }: ClientDateProps) => {
+const ClientMonth = ({ date, ...props }: ClientMonthProps) => {
   const [appear, setAppear] = useState(true);
 
   useEffect(() => {
