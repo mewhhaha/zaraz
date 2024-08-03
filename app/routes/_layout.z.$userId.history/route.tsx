@@ -2,7 +2,13 @@ import { LoaderFunctionArgs, defer, redirect } from "@remix-run/cloudflare";
 import { Await, Form, useLoaderData } from "@remix-run/react";
 import { authenticate } from "~/utils/auth.server";
 import { Table, Todo, camelCaseKeysFromSnakeCase } from "~/utils/db.server";
-import { Suspense, useEffect, useState } from "react";
+import {
+  MouseEvent,
+  Suspense,
+  SyntheticEvent,
+  useEffect,
+  useState,
+} from "react";
 import { swr } from "~/utils/cache.server";
 import { cx } from "~/styles/cx";
 import {
@@ -49,114 +55,153 @@ export default function Route() {
   const [removed, setRemoved] = useState<string[]>([]);
 
   return (
-    <main className="mt-28 grow overflow-auto px-4 pb-20">
+    <main className="relative grow overflow-auto px-4 pb-20 pt-28">
       <ul className="flex flex-col gap-20">
-        <Suspense
-          fallback={
-            <li>
-              <ClientMonth
-                className="text-2xl tracking-widest text-gray-900"
-                date={startOfDay(new Date(today))}
-              />
-              <ul className="animate-pulse space-y-1 bg-gray-100 px-10 py-2">
-                {new Array(10).fill(
-                  <SmallRibbon delay={0} transition={false}>
-                    {" "}
-                  </SmallRibbon>,
-                )}
-              </ul>
-            </li>
-          }
-        >
-          <Await resolve={data}>
-            {(todos) => {
-              const grouped = groupByMonth(todos);
+        <AwaitHistory today={today} resolve={data}>
+          {(todos) => {
+            const grouped = groupByMonth(todos);
 
-              return grouped.map((todos) => {
-                const day = new Date(todos[0].doneAt);
-                return (
-                  <li key={day.toDateString()}>
+            return grouped.map((todos) => {
+              const day = new Date(todos[0].doneAt);
+              return (
+                <li key={day.toDateString()}>
+                  <div className="sticky -top-28 z-10 w-full border-b border-green-500 bg-white py-2">
                     <ClientMonth
-                      className="text-2xl tracking-widest text-gray-900"
+                      className="sticky top-0 text-2xl tracking-widest text-gray-900"
                       date={startOfDay(day)}
                     />
-                    <ul className="space-y-1 rounded-xl bg-green-100 px-4 py-2 sm:px-10">
-                      {todos.map((todo, i) => {
-                        const removing = removed.includes(todo.id);
-                        return (
-                          <li
-                            key={todo.id}
-                            className={cx(
-                              "group",
-                              removing ? "opacity-50" : "",
-                            )}
+                  </div>
+                  <ul className="space-y-1 rounded-b-xl bg-green-100 px-4 py-2 sm:px-10">
+                    {todos.map((todo, i) => {
+                      const removing = removed.includes(todo.id);
+                      const handleOnRemove = (
+                        event: MouseEvent<HTMLButtonElement>,
+                      ) => {
+                        event.currentTarget.form?.requestSubmit();
+                        setRemoved((removed) => [...removed, todo.id]);
+                      };
+
+                      return (
+                        <li
+                          key={todo.id}
+                          className={cx("group", removing ? "opacity-50" : "")}
+                        >
+                          <SmallRibbon
+                            delay={i * 100}
+                            className="group-odd:after:bg-green-200 group-even:after:bg-blue-200"
                           >
-                            <SmallRibbon
-                              delay={i * 100}
-                              className="group-odd:after:bg-green-200 group-even:after:bg-blue-200"
-                            >
-                              <dl>
-                                <div className="flex items-center justify-between">
-                                  <dt className="sr-only">Done At</dt>
-                                  <dd className="text-gray-600">
-                                    <ClientTime
-                                      date={new Date(todo.doneAt)}
-                                      today={new Date(today)}
-                                    />
-                                  </dd>
-                                  <Form
-                                    method="DELETE"
-                                    action="../actions/remove"
-                                    navigate={false}
+                            <TodoDone
+                              doneAt={todo.doneAt}
+                              today={today}
+                              actions={
+                                <FormDeleteTodo todoId={todo.id}>
+                                  <button
+                                    disabled={removing}
+                                    className="rounded border border-transparent px-4 py-1 font-semibold text-red-800 hover:border hover:border-red-200 hover:bg-red-600 hover:text-white"
+                                    onClick={onConfirm(
+                                      `Are you sure you want to remove "${todo.name}"?`,
+                                      handleOnRemove,
+                                    )}
                                   >
-                                    <input
-                                      type="hidden"
-                                      name="id"
-                                      value={todo.id}
-                                    />
-                                    <button
-                                      disabled={removing}
-                                      className="rounded border border-transparent px-4 py-1 font-semibold text-red-800 hover:border hover:border-red-200 hover:bg-red-600 hover:text-white"
-                                      onClick={(event) => {
-                                        event.preventDefault();
-                                        const answer = window.confirm(
-                                          `Are you sure you want to remove "${todo.name}"?`,
-                                        );
-                                        if (answer) {
-                                          event.currentTarget.form?.requestSubmit();
-                                          setRemoved((removed) => [
-                                            ...removed,
-                                            todo.id,
-                                          ]);
-                                        }
-                                      }}
-                                    >
-                                      Remove
-                                    </button>
-                                  </Form>
-                                </div>
-                                <div>
-                                  <dt className="sr-only">Label</dt>
-                                  <dd className="text-2xl font-semibold text-black">
-                                    {todo.name}
-                                  </dd>
-                                </div>
-                              </dl>
-                            </SmallRibbon>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </li>
-                );
-              });
-            }}
-          </Await>
-        </Suspense>
+                                    Remove
+                                  </button>
+                                </FormDeleteTodo>
+                              }
+                            >
+                              {todo.name}
+                            </TodoDone>
+                          </SmallRibbon>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </li>
+              );
+            });
+          }}
+        </AwaitHistory>
       </ul>
     </main>
   );
 }
+
+type TodoDoneProps = {
+  today: string;
+  doneAt: string;
+  actions: React.ReactNode;
+  children: React.ReactNode;
+};
+const TodoDone = ({ doneAt, today, children, actions }: TodoDoneProps) => {
+  return (
+    <dl>
+      <div className="flex items-center justify-between">
+        <dt className="sr-only">Done At</dt>
+        <dd className="text-gray-600">
+          <ClientTime date={new Date(doneAt)} today={new Date(today)} />
+        </dd>
+        {actions}
+      </div>
+      <div>
+        <dt className="sr-only">Label</dt>
+        <dd className="text-2xl font-semibold text-black">{children}</dd>
+      </div>
+    </dl>
+  );
+};
+
+type AwaitHistoryProps = {
+  today: string;
+  resolve: Promise<Todo[]>;
+  children: (todos: Todo[]) => React.ReactNode;
+};
+
+const AwaitHistory = ({ children, today, resolve }: AwaitHistoryProps) => {
+  return (
+    <Suspense
+      fallback={
+        <li>
+          <ClientMonth
+            className="text-2xl tracking-widest text-gray-900"
+            date={startOfDay(new Date(today))}
+          />
+          <ul className="animate-pulse space-y-1 bg-gray-100 px-10 py-2">
+            {new Array(10).fill(
+              <SmallRibbon delay={0} transition={false}>
+                {" "}
+              </SmallRibbon>,
+            )}
+          </ul>
+        </li>
+      }
+    >
+      <Await resolve={resolve}>{children}</Await>
+    </Suspense>
+  );
+};
+
+type FormDeleteTodoProps = {
+  todoId: string;
+  children: React.ReactNode;
+};
+
+const FormDeleteTodo = ({ todoId, children }: FormDeleteTodoProps) => {
+  return (
+    <Form method="DELETE" action="../actions/remove" navigate={false}>
+      <input type="hidden" name="id" value={todoId} />
+      {children}
+    </Form>
+  );
+};
+
+const onConfirm =
+  <T extends SyntheticEvent>(message: string, f: (event: T) => void) =>
+  (event: T) => {
+    event.preventDefault();
+    const answer = window.confirm(message);
+    if (answer) {
+      f(event);
+    }
+  };
 
 const groupByMonth = (todos: Todo[]) => {
   const groupedByMonth: Todo[][] = [];
