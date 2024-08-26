@@ -1,5 +1,11 @@
 import { LoaderFunctionArgs } from "@remix-run/cloudflare";
-import { Link, NavLink, NavLinkProps, Outlet } from "@remix-run/react";
+import {
+  Link,
+  NavLink,
+  NavLinkProps,
+  Outlet,
+  useNavigation,
+} from "@remix-run/react";
 import { authenticate } from "~/utils/auth.server";
 
 import { Phonetic } from "~/components/Phonetic";
@@ -13,9 +19,23 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
 };
 
 export default function Route() {
+  const navigation = useNavigation();
+  const loading = navigation.state !== "idle";
+
   return (
     <>
       <header>
+        <ProgressBar
+          loading
+          className={cx(
+            "fixed left-0 top-0 h-1 w-full transition-opacity duration-75 ease-in",
+
+            "after:absolute after:left-0 after:top-0 after:size-1 after:w-full after:origin-left after:bg-blue-500 after:transition-transform after:duration-1000",
+            loading
+              ? "opacity-100 after:scale-x-100"
+              : "opacity-0 after:scale-x-0",
+          )}
+        />
         <div className="flex items-start">
           <hgroup className="p-1">
             <Heading1 aria-describedby="desription">
@@ -52,6 +72,13 @@ export default function Route() {
     </>
   );
 }
+
+type ProgressBarProps = {
+  loading: boolean;
+} & JSX.IntrinsicElements["progress"];
+const ProgressBar = ({ ...props }: ProgressBarProps) => {
+  return <progress value={1} {...props} />;
+};
 
 type PageLinkProps = NavLinkProps;
 
