@@ -64,7 +64,7 @@ export default function Route() {
             return grouped.map((todos) => {
               const day = new Date(todos[0].doneAt);
               return (
-                <li key={day.toDateString()}>
+                <li key={day.toISOString()}>
                   <div className="sticky -top-28 z-10 w-full border-b border-green-500 bg-white py-2">
                     <ClientMonth
                       className="sticky top-0 text-2xl tracking-widest text-gray-900"

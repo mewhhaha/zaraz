@@ -47,6 +47,7 @@ export default function Route() {
           </ul>
         </nav>
       </header>
+
       <Outlet />
     </>
   );
