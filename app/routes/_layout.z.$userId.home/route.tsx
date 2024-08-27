@@ -275,8 +275,11 @@ const Ribbon = (props: RibbonProps) => {
       className={cx(
         "relative flex grow justify-center text-balance px-10 py-2 text-center text-5xl font-bold text-black decoration-wavy underline-offset-2 md:text-6xl lg:mb-0 lg:text-7xl xl:text-8xl",
         "after:absolute after:inset-0 after:-z-10 after:-skew-x-6",
-        "transition-all duration-300 ease-in-out",
-        appear ? "translate-y-0" : "-translate-y-2",
+        "transition-[transform,opacity,max-height] duration-300 ease-in-out",
+        "origin-top",
+        appear
+          ? "max-h-40 translate-y-0 skew-y-0 scale-y-100 opacity-100"
+          : "max-h-0 -translate-y-10 skew-y-12 scale-y-0 opacity-0",
         props.className,
       )}
     />
