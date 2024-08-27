@@ -61,9 +61,7 @@ export default function Route() {
         </nav>
       </header>
 
-      <Suspense>
-        <Outlet />
-      </Suspense>
+      <Outlet />
     </>
   );
 }
