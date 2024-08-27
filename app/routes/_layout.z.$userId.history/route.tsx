@@ -185,10 +185,7 @@ const AwaitHistory = ({ children, today, resolve }: AwaitHistoryProps) => {
   return (
     <Suspense
       fallback={
-        <li
-          key={new Date(today).toISOString().slice(0, "0000-00-00".length)}
-          className="animate-pulse"
-        >
+        <li key={new Date(today).toISOString().slice(0, "0000-00-00".length)}>
           <div className="sticky -top-28 z-10 w-full border-b border-green-500 bg-white py-2">
             <ClientMonth
               className="sticky top-0 text-2xl tracking-widest text-gray-900"
