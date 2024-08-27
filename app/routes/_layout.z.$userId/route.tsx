@@ -1,4 +1,3 @@
-import { LoaderFunctionArgs } from "@remix-run/cloudflare";
 import {
   Link,
   NavLink,
@@ -6,17 +5,12 @@ import {
   Outlet,
   useNavigation,
 } from "@remix-run/react";
-import { authenticate } from "~/utils/auth.server";
+import { Suspense } from "react";
 
 import { Phonetic } from "~/components/Phonetic";
 import { Subtitle } from "~/components/Subtitle";
 import { Heading1 } from "~/components/Title";
 import { cx } from "~/styles/cx";
-
-export const loader = async ({ request, context }: LoaderFunctionArgs) => {
-  await authenticate(context.cloudflare, request);
-  return null;
-};
 
 export default function Route() {
   const navigation = useNavigation();
@@ -68,7 +62,9 @@ export default function Route() {
         </nav>
       </header>
 
-      <Outlet />
+      <Suspense>
+        <Outlet />
+      </Suspense>
     </>
   );
 }

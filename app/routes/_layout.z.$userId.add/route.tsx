@@ -1,7 +1,21 @@
-import { Form } from "@remix-run/react";
+import { Form, redirect } from "@remix-run/react";
 import { cx } from "~/styles/cx";
 import { useState } from "react";
 import { Button } from "~/components/Button";
+import { LoaderFunctionArgs } from "@remix-run/cloudflare";
+import { authenticate } from "~/utils/auth.server";
+
+export const loader = async ({
+  request,
+  context,
+  params: { userId },
+}: LoaderFunctionArgs) => {
+  const user = await authenticate(context.cloudflare, request);
+  if (user.id !== userId) {
+    throw redirect("/403");
+  }
+  return null;
+};
 
 export default function Route() {
   const [recent, setRecent] = useState<string[]>([]);

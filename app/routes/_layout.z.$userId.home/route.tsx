@@ -1,12 +1,11 @@
 import { LoaderFunctionArgs, defer, redirect } from "@remix-run/cloudflare";
 import { Await, Form, useLoaderData } from "@remix-run/react";
 import { authenticate } from "~/utils/auth.server";
-import { Table, camelCaseKeysFromSnakeCase } from "~/utils/db.server";
+import { Table, Todo, camelCaseKeysFromSnakeCase } from "~/utils/db.server";
 import ConfettiExplosion from "react-confetti-explosion";
 import { cx } from "~/styles/cx";
 import { Suspense, startTransition, useEffect, useState } from "react";
 import { Button } from "~/components/Button";
-import { swr } from "~/utils/cache.server";
 
 const getTodos = async (db: D1Database, userId: string) => {
   const result = await db
@@ -38,81 +37,38 @@ export const loader = async ({
     throw redirect("/403");
   }
 
-  const cacheKey = new Request(request.url, {
-    headers: { "Cache-Control": "max-age=604800" },
-    method: "GET",
-  });
-  const task = getTodos(context.cloudflare.env.DB, userId);
   return defer({
-    data: await swr(context.cloudflare, task, { cacheKey, namespace: "todos" }),
+    data: getTodos(context.cloudflare.env.DB, userId),
     numberOfDone: getNumberOfDone(context.cloudflare.env.DB, userId),
   });
 };
 
 export default function Route() {
   const { data, numberOfDone } = useLoaderData<typeof loader>();
-  const [todos, setTodos] = useState(data);
-  const current = todos[0];
-
-  const [explosion, setExplosion] = useState(0);
-
   return (
     <main>
-      <div
-        key={current ? current.id : undefined}
-        className="mb-10 mt-40 grid w-full grid-cols-2 gap-10 px-4 transition-opacity duration-300 ease-in-out"
-      >
-        <Ribbon
-          className={cx("col-span-2", {
-            "after:bg-green-300": !current,
-            "after:bg-blue-300": current,
-          })}
-        >
-          {current && (
-            <span className="-my-4 inline-block bg-blue-400 shadow-xl">
-              {current.name}
-            </span>
-          )}
-          {!current && (
-            <span className="-my-4 bg-green-400 shadow-xl">
-              {"You're good!"}
-            </span>
-          )}
-          {explosion !== 0 && <ConfettiExplosion />}
-        </Ribbon>
-        {current && (
-          <Form
-            method="POST"
-            navigate={false}
-            action="./../actions/soon"
-            onSubmit={() => {
-              setTodos((prev) => [...prev.slice(1), prev[0]]);
-              setExplosion(0);
-            }}
-          >
-            <input type="hidden" name="id" value={current.id} />
-            <Button className="h-full border-orange-200 bg-orange-100">
-              Soon
-            </Button>
-          </Form>
-        )}
-        {current && (
-          <Form
-            method="POST"
-            navigate={false}
-            action="./../actions/done"
-            onSubmit={() => {
-              setTodos((prev) => prev.slice(1));
-              setExplosion((prev) => prev + 1);
-            }}
-          >
-            <input type="hidden" name="id" value={current.id} />
-            <Button className="h-full">Done</Button>
-          </Form>
-        )}
-      </div>
+      <Suspense fallback={<></>}>
+        <Await resolve={data}>
+          {(todos) => {
+            return <TodoPrompt todos={todos} />;
+          }}
+        </Await>
+      </Suspense>
+
       <div className="flex justify-center">
-        <Suspense fallback={<></>}>
+        <Suspense
+          fallback={
+            <div className="mb-10 mt-40 grid w-full grid-cols-2 gap-10 px-4 opacity-50 transition-opacity duration-300 ease-in-out">
+              <Ribbon
+                className={cx("col-span-3 animate-pulse after:bg-blue-300")}
+              >
+                <span className="-my-4 bg-blue-300 shadow-xl">
+                  {"Loading..."}
+                </span>
+              </Ribbon>
+            </div>
+          }
+        >
           <Await resolve={numberOfDone}>
             {(done) => {
               return (
@@ -155,6 +111,70 @@ export default function Route() {
     </main>
   );
 }
+
+type TodoPromptProps = {
+  todos: Todo[];
+};
+const TodoPrompt = ({ todos: data }: TodoPromptProps) => {
+  const [todos, setTodos] = useState(data);
+  const current = todos[0];
+
+  const [explosion, setExplosion] = useState(-1);
+
+  return (
+    <div
+      key={current ? current.id : undefined}
+      className="mb-10 mt-40 grid w-full grid-cols-2 gap-10 px-4 transition-opacity duration-300 ease-in-out"
+    >
+      <Ribbon
+        className={cx("col-span-3", {
+          "after:bg-green-300": !current,
+          "after:bg-blue-300": current,
+        })}
+      >
+        {current && (
+          <span className="-my-4 inline-block bg-blue-400 shadow-xl">
+            {current.name}
+          </span>
+        )}
+        {!current && (
+          <span className="-my-4 bg-green-400 shadow-xl">{"You're good!"}</span>
+        )}
+        {explosion !== -1 && <ConfettiExplosion />}
+      </Ribbon>
+      {current && (
+        <Form
+          method="POST"
+          navigate={false}
+          action="./../actions/soon"
+          onSubmit={() => {
+            setTodos((prev) => [...prev.slice(0), prev[0]]);
+            setExplosion(-1);
+          }}
+        >
+          <input type="hidden" name="id" value={current.id} />
+          <Button className="h-full border-orange-200 bg-orange-100">
+            Soon
+          </Button>
+        </Form>
+      )}
+      {current && (
+        <Form
+          method="POST"
+          navigate={false}
+          action="./../actions/done"
+          onSubmit={() => {
+            setTodos((prev) => prev.slice(0));
+            setExplosion((prev) => prev + 0);
+          }}
+        >
+          <input type="hidden" name="id" value={current.id} />
+          <Button className="h-full">Done</Button>
+        </Form>
+      )}
+    </div>
+  );
+};
 
 type CountUpProps = {
   start: number;
