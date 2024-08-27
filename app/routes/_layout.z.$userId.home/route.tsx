@@ -264,9 +264,9 @@ const Tile = ({ children, ...props }: TileProps) => {
   );
 };
 
-type RibbonProps = JSX.IntrinsicElements["p"];
+type RibbonProps = JSX.IntrinsicElements["p"] & { animate?: boolean };
 
-const Ribbon = (props: RibbonProps) => {
+const Ribbon = ({ animate, ...props }: RibbonProps) => {
   const appear = useAppear();
 
   return (
@@ -277,8 +277,8 @@ const Ribbon = (props: RibbonProps) => {
         "after:absolute after:inset-0 after:-z-10 after:-skew-x-6",
         "transition-[transform,opacity,max-height] duration-300 ease-in-out",
         "origin-top",
-        appear
-          ? "max-h-40 translate-y-0 skew-y-0 scale-y-100 opacity-100"
+        appear || !animate
+          ? "max-h-96 translate-y-0 skew-y-0 scale-y-100 opacity-100"
           : "max-h-0 -translate-y-10 skew-y-12 scale-y-0 opacity-0",
         props.className,
       )}
