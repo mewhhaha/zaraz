@@ -20,7 +20,6 @@ export default function Route() {
     <>
       <header>
         <ProgressBar
-          loading
           className={cx(
             "fixed left-0 top-0 h-1 w-full transition-opacity duration-75 ease-in",
 
@@ -69,10 +68,8 @@ export default function Route() {
   );
 }
 
-type ProgressBarProps = {
-  loading: boolean;
-} & JSX.IntrinsicElements["progress"];
-const ProgressBar = ({ ...props }: ProgressBarProps) => {
+type ProgressBarProps = JSX.IntrinsicElements["progress"];
+const ProgressBar = (props: ProgressBarProps) => {
   return <progress value={1} {...props} />;
 };
 

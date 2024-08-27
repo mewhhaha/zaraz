@@ -4,7 +4,13 @@ import { authenticate } from "~/utils/auth.server";
 import { Table, Todo, camelCaseKeysFromSnakeCase } from "~/utils/db.server";
 import ConfettiExplosion from "react-confetti-explosion";
 import { cx } from "~/styles/cx";
-import { Suspense, startTransition, useEffect, useState } from "react";
+import {
+  ReactNode,
+  Suspense,
+  startTransition,
+  useEffect,
+  useState,
+} from "react";
 import { Button } from "~/components/Button";
 
 const getTodos = async (db: D1Database, userId: string) => {
@@ -47,10 +53,27 @@ export default function Route() {
   const { data, numberOfDone } = useLoaderData<typeof loader>();
   return (
     <main>
-      <Suspense fallback={<></>}>
+      <Suspense
+        fallback={
+          <div className="animate-pulse opacity-50">
+            <div className="mb-10 mt-40 grid w-full grid-cols-2 gap-10 px-4 transition-opacity duration-300 ease-in-out">
+              <Ribbon className={cx("col-span-3 after:bg-gray-300")}>
+                <span className="-my-4 bg-gray-400 shadow-xl">{"..."}</span>
+              </Ribbon>
+
+              <Button disabled className="h-full">
+                Soon
+              </Button>
+              <Button disabled className="h-full">
+                Done
+              </Button>
+            </div>
+          </div>
+        }
+      >
         <Await resolve={data}>
           {(todos) => {
-            return <TodoPrompt todos={todos} />;
+            return <TodoArea todos={todos} />;
           }}
         </Await>
       </Suspense>
@@ -58,14 +81,8 @@ export default function Route() {
       <div className="flex justify-center">
         <Suspense
           fallback={
-            <div className="mb-10 mt-40 grid w-full grid-cols-2 gap-10 px-4 opacity-50 transition-opacity duration-300 ease-in-out">
-              <Ribbon
-                className={cx("col-span-3 animate-pulse after:bg-blue-300")}
-              >
-                <span className="-my-4 bg-blue-300 shadow-xl">
-                  {"Loading..."}
-                </span>
-              </Ribbon>
+            <div className="animate-pulse opacity-50">
+              <TodoScore count={0}>{`unknown done tasks`}</TodoScore>
             </div>
           }
         >
@@ -74,32 +91,10 @@ export default function Route() {
               return (
                 <CountUp key={done} start={0} end={done}>
                   {(number) => {
-                    const digits = number.toString().padStart(5, "0").split("");
-
                     return (
-                      <div
-                        aria-label={`${done} done tasks`}
-                        className="flex gap-1"
-                      >
-                        {digits.map((digit, i) => {
-                          return (
-                            <Tile
-                              key={i}
-                              role="presentation"
-                              className={cx({
-                                "bg-yellow-200": digit === "0" && i === 0,
-                                "bg-red-200": digit === "0" && i === 1,
-                                "bg-pink-200": digit === "0" && i === 2,
-                                "bg-purple-200": digit === "0" && i === 3,
-                                "bg-green-200": digit === "0" && i === 4,
-                                "text-gray-600": digit === "0",
-                              })}
-                            >
-                              {digit}
-                            </Tile>
-                          );
-                        })}
-                      </div>
+                      <TodoScore
+                        count={number}
+                      >{`${done} done tasks`}</TodoScore>
                     );
                   }}
                 </CountUp>
@@ -112,10 +107,42 @@ export default function Route() {
   );
 }
 
-type TodoPromptProps = {
+type TodoScoreProps = {
+  count: number;
+  children: ReactNode;
+};
+const TodoScore = ({ count, children }: TodoScoreProps) => {
+  const digits = count.toString().padStart(5, "0").split("");
+
+  return (
+    <div className="flex gap-1">
+      {digits.map((digit, i) => {
+        return (
+          <Tile
+            key={i}
+            role="presentation"
+            className={cx({
+              "bg-yellow-200": digit === "0" && i === 0,
+              "bg-red-200": digit === "0" && i === 1,
+              "bg-pink-200": digit === "0" && i === 2,
+              "bg-purple-200": digit === "0" && i === 3,
+              "bg-green-200": digit === "0" && i === 4,
+              "text-gray-600": digit === "0",
+            })}
+          >
+            {digit}
+          </Tile>
+        );
+      })}
+      <span className="sr-only">{children}</span>
+    </div>
+  );
+};
+
+type TodoAreaProps = {
   todos: Todo[];
 };
-const TodoPrompt = ({ todos: data }: TodoPromptProps) => {
+const TodoArea = ({ todos: data }: TodoAreaProps) => {
   const [todos, setTodos] = useState(data);
   const current = todos[0];
 

@@ -1,7 +1,11 @@
 import { LoaderFunctionArgs, defer, redirect } from "@remix-run/cloudflare";
 import { Await, Form, useLoaderData } from "@remix-run/react";
 import { authenticate } from "~/utils/auth.server";
-import { Table, Todo, camelCaseKeysFromSnakeCase } from "~/utils/db.server";
+import {
+  type Table,
+  type Todo,
+  camelCaseKeysFromSnakeCase,
+} from "~/utils/db.server";
 import {
   MouseEvent,
   Suspense,
