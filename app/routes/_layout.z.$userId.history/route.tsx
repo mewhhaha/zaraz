@@ -254,17 +254,13 @@ type ClientMonthProps = JSX.IntrinsicElements["time"] & {
 };
 
 const ClientMonth = ({ date, ...props }: ClientMonthProps) => {
-  const appear = useAppear();
-
   return (
     <time {...props} dateTime={date.toISOString()}>
-      {appear
-        ? intlFormat(
-            date,
-            { year: "numeric", month: "long" },
-            { locale: "en-SV" },
-          )
-        : "-"}
+      {intlFormat(
+        date,
+        { year: "numeric", month: "long" },
+        { locale: "en-SV" },
+      )}
     </time>
   );
 };
@@ -275,23 +271,17 @@ type ClientTimeProps = JSX.IntrinsicElements["time"] & {
 };
 
 const ClientTime = ({ date, today, ...props }: ClientTimeProps) => {
-  const appear = useAppear();
-
   return (
     <time
       {...props}
-      title={
-        appear
-          ? intlFormat(
-              date,
-              { dateStyle: "long", timeStyle: "medium" },
-              { locale: "en-SV" },
-            )
-          : date.toISOString()
-      }
+      title={intlFormat(
+        date,
+        { dateStyle: "long", timeStyle: "medium" },
+        { locale: "en-SV" },
+      )}
       dateTime={date.toISOString()}
     >
-      {appear ? intlFormatDistance(date, today, { locale: "en-SV" }) : "-"}
+      {intlFormatDistance(date, today, { locale: "en-SV" })}
     </time>
   );
 };
