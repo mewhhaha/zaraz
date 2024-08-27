@@ -194,7 +194,12 @@ const AwaitHistory = ({ children, today, resolve }: AwaitHistoryProps) => {
           </div>
           <ul className="space-y-1 rounded-b-xl bg-green-100 px-4 py-2 sm:px-10">
             {[...new Array(10).keys()].map((i) => (
-              <SmallRibbon key={i} delay={0} transition={false}>
+              <SmallRibbon
+                key={i}
+                delay={0}
+                transition={false}
+                className="bg-green-100"
+              >
                 {" "}
               </SmallRibbon>
             ))}
