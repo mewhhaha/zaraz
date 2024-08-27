@@ -73,7 +73,10 @@ export default function Route() {
         fallback={
           <div className="animate-pulse">
             <div className="mb-10 mt-40 grid w-full grid-cols-2 gap-10 px-4 transition-opacity duration-300 ease-in-out">
-              <Ribbon className={cx("col-span-3 after:bg-gray-300")}>
+              <Ribbon
+                animate={false}
+                className={cx("col-span-3 after:bg-gray-300")}
+              >
                 <span className="-my-4 bg-gray-400 shadow-xl">{"..."}</span>
               </Ribbon>
 
@@ -266,7 +269,7 @@ const Tile = ({ children, ...props }: TileProps) => {
 
 type RibbonProps = JSX.IntrinsicElements["p"] & { animate?: boolean };
 
-const Ribbon = ({ animate, ...props }: RibbonProps) => {
+const Ribbon = ({ animate = true, ...props }: RibbonProps) => {
   const appear = useAppear();
 
   return (
