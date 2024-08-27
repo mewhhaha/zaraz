@@ -5,8 +5,6 @@ import {
   Outlet,
   useNavigation,
 } from "@remix-run/react";
-import { Suspense } from "react";
-
 import { Phonetic } from "~/components/Phonetic";
 import { Subtitle } from "~/components/Subtitle";
 import { Heading1 } from "~/components/Title";

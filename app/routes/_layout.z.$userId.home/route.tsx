@@ -175,7 +175,7 @@ const TodoArea = ({ todos: data }: TodoAreaProps) => {
           navigate={false}
           action="./../actions/soon"
           onSubmit={() => {
-            setTodos((prev) => [...prev.slice(0), prev[0]]);
+            setTodos((prev) => [...prev.slice(1), prev[0]]);
             setExplosion(-1);
           }}
         >
@@ -191,8 +191,8 @@ const TodoArea = ({ todos: data }: TodoAreaProps) => {
           navigate={false}
           action="./../actions/done"
           onSubmit={() => {
-            setTodos((prev) => prev.slice(0));
-            setExplosion((prev) => prev + 0);
+            setTodos((prev) => prev.slice(1));
+            setExplosion((prev) => prev + 1);
           }}
         >
           <input type="hidden" name="id" value={current.id} />
