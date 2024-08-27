@@ -11,13 +11,7 @@ import {
   type Todo,
   camelCaseKeysFromSnakeCase,
 } from "~/utils/db.server";
-import {
-  MouseEvent,
-  Suspense,
-  SyntheticEvent,
-  useEffect,
-  useState,
-} from "react";
+import { MouseEvent, Suspense, SyntheticEvent, useState } from "react";
 import { cx } from "~/styles/cx";
 import {
   intlFormat,
@@ -25,6 +19,7 @@ import {
   startOfDay,
   startOfMonth,
 } from "date-fns";
+import { useAppear } from "~/utils/use-appear";
 
 const getRecentTodos = async (db: D1Database, userId: string) => {
   const result = await db
@@ -64,7 +59,6 @@ export const clientLoader = ({ serverLoader }: ClientLoaderFunctionArgs) => {
 export default function Route() {
   const { data, today } = useLoaderData<typeof loader>();
   const [removed, setRemoved] = useState<string[]>([]);
-
   return (
     <main className="relative grow overflow-auto px-4 pb-20 pt-28">
       <ul className="flex flex-col gap-20">
@@ -82,8 +76,11 @@ export default function Route() {
                       date={startOfDay(day)}
                     />
                   </div>
-                  <ul className="space-y-1 rounded-b-xl bg-green-100 px-4 py-2 sm:px-10">
-                    {todos.map((todo, i) => {
+                  <TodoGroup
+                    todos={todos}
+                    disabled={(todo) => removed.includes(todo.id)}
+                  >
+                    {(todo) => {
                       const removing = removed.includes(todo.id);
                       const handleOnRemove = (
                         event: MouseEvent<HTMLButtonElement>,
@@ -93,39 +90,29 @@ export default function Route() {
                       };
 
                       return (
-                        <li
-                          key={todo.id}
-                          className={cx("group", removing ? "opacity-50" : "")}
+                        <TodoDone
+                          doneAt={todo.doneAt}
+                          today={today}
+                          actions={
+                            <FormDeleteTodo todoId={todo.id}>
+                              <button
+                                disabled={removing}
+                                className="rounded border border-transparent px-4 py-1 font-semibold text-red-800 hover:border hover:border-red-200 hover:bg-red-600 hover:text-white"
+                                onClick={onConfirm(
+                                  `Are you sure you want to remove "${todo.name}"?`,
+                                  handleOnRemove,
+                                )}
+                              >
+                                Remove
+                              </button>
+                            </FormDeleteTodo>
+                          }
                         >
-                          <SmallRibbon
-                            delay={i * 100}
-                            className="group-odd:after:bg-green-200 group-even:after:bg-blue-200"
-                          >
-                            <TodoDone
-                              doneAt={todo.doneAt}
-                              today={today}
-                              actions={
-                                <FormDeleteTodo todoId={todo.id}>
-                                  <button
-                                    disabled={removing}
-                                    className="rounded border border-transparent px-4 py-1 font-semibold text-red-800 hover:border hover:border-red-200 hover:bg-red-600 hover:text-white"
-                                    onClick={onConfirm(
-                                      `Are you sure you want to remove "${todo.name}"?`,
-                                      handleOnRemove,
-                                    )}
-                                  >
-                                    Remove
-                                  </button>
-                                </FormDeleteTodo>
-                              }
-                            >
-                              {todo.name}
-                            </TodoDone>
-                          </SmallRibbon>
-                        </li>
+                          {todo.name}
+                        </TodoDone>
                       );
-                    })}
-                  </ul>
+                    }}
+                  </TodoGroup>
                 </li>
               );
             });
@@ -135,6 +122,34 @@ export default function Route() {
     </main>
   );
 }
+
+type TodoGroupProps = {
+  todos: Todo[];
+  children: (todo: Todo) => React.ReactNode;
+  disabled: (todo: Todo) => boolean;
+};
+
+const TodoGroup = ({ todos, children, disabled }: TodoGroupProps) => {
+  return (
+    <ul className="space-y-1 rounded-b-xl bg-green-100 px-4 py-2 sm:px-10">
+      {todos.map((todo, i) => {
+        return (
+          <li
+            key={todo.id}
+            className={cx("group", disabled(todo) ? "opacity-50" : "")}
+          >
+            <SmallRibbon
+              delay={i * 100}
+              className="group-odd:after:bg-green-200 group-even:after:bg-blue-200"
+            >
+              {children(todo)}
+            </SmallRibbon>
+          </li>
+        );
+      })}
+    </ul>
+  );
+};
 
 type TodoDoneProps = {
   today: string;
@@ -177,12 +192,12 @@ const AwaitHistory = ({ children, today, resolve }: AwaitHistoryProps) => {
               date={startOfDay(today)}
             />
           </div>
-          <ul className="space-y-1 bg-gray-100 px-10 py-2">
-            {new Array(10).fill(
-              <SmallRibbon delay={0} transition={false}>
+          <ul className="space-y-1 rounded-b-xl bg-green-100 px-4 py-2 sm:px-10">
+            {[...new Array(10).keys()].map((i) => (
+              <SmallRibbon key={i} delay={0} transition={false}>
                 {" "}
-              </SmallRibbon>,
-            )}
+              </SmallRibbon>
+            ))}
           </ul>
         </li>
       }
@@ -239,11 +254,7 @@ type ClientMonthProps = JSX.IntrinsicElements["time"] & {
 };
 
 const ClientMonth = ({ date, ...props }: ClientMonthProps) => {
-  const [appear, setAppear] = useState(true);
-
-  useEffect(() => {
-    setAppear(true);
-  }, []);
+  const appear = useAppear();
 
   return (
     <time {...props} dateTime={date.toISOString()}>
@@ -264,11 +275,7 @@ type ClientTimeProps = JSX.IntrinsicElements["time"] & {
 };
 
 const ClientTime = ({ date, today, ...props }: ClientTimeProps) => {
-  const [appear, setAppear] = useState(true);
-
-  useEffect(() => {
-    setAppear(true);
-  }, []);
+  const appear = useAppear();
 
   return (
     <time
@@ -300,11 +307,7 @@ const SmallRibbon = ({
   transition = true,
   ...props
 }: SmallRibbonProps) => {
-  const [appear, setAppear] = useState(false);
-
-  useEffect(() => {
-    setAppear(true);
-  }, []);
+  const appear = useAppear();
 
   return (
     <div
@@ -312,7 +315,7 @@ const SmallRibbon = ({
       className={cx(
         "min-h-20 bg-green-200 px-4 pb-2 pt-1 duration-300 ease-in-out group-first:rounded-t-xl group-last:rounded-b-xl sm:px-10",
         appear ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0",
-        transition ? "transition-all" : "transition-none",
+        transition ? "transition-transform" : "transition-none",
         props.className,
       )}
       style={{ transitionDelay: `${delay}ms` }}

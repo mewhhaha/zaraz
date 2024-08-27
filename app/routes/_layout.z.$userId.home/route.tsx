@@ -17,6 +17,7 @@ import {
   useState,
 } from "react";
 import { Button } from "~/components/Button";
+import { useAppear } from "~/utils/use-appear";
 
 const getTodos = async (db: D1Database, userId: string) => {
   const result = await db
@@ -266,13 +267,7 @@ const Tile = ({ children, ...props }: TileProps) => {
 type RibbonProps = JSX.IntrinsicElements["p"];
 
 const Ribbon = (props: RibbonProps) => {
-  const [appear, setAppear] = useState(
-    typeof window === "undefined" ? true : false,
-  );
-
-  useEffect(() => {
-    setAppear(true);
-  }, []);
+  const appear = useAppear();
 
   return (
     <p
