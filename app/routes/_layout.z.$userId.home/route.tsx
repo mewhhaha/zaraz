@@ -1,5 +1,10 @@
 import { LoaderFunctionArgs, defer, redirect } from "@remix-run/cloudflare";
-import { Await, Form, useLoaderData } from "@remix-run/react";
+import {
+  Await,
+  ClientLoaderFunctionArgs,
+  Form,
+  useLoaderData,
+} from "@remix-run/react";
 import { authenticate } from "~/utils/auth.server";
 import { Table, Todo, camelCaseKeysFromSnakeCase } from "~/utils/db.server";
 import ConfettiExplosion from "react-confetti-explosion";
@@ -49,13 +54,23 @@ export const loader = async ({
   });
 };
 
+export const clientLoader = async ({
+  serverLoader,
+}: ClientLoaderFunctionArgs) => {
+  const data = serverLoader<typeof loader>();
+  return {
+    data: data.then((x) => x.data),
+    numberOfDone: data.then((x) => x.numberOfDone),
+  };
+};
+
 export default function Route() {
   const { data, numberOfDone } = useLoaderData<typeof loader>();
   return (
     <main>
       <Suspense
         fallback={
-          <div className="animate-pulse opacity-50">
+          <div className="animate-pulse">
             <div className="mb-10 mt-40 grid w-full grid-cols-2 gap-10 px-4 transition-opacity duration-300 ease-in-out">
               <Ribbon className={cx("col-span-3 after:bg-gray-300")}>
                 <span className="-my-4 bg-gray-400 shadow-xl">{"..."}</span>
@@ -81,7 +96,7 @@ export default function Route() {
       <div className="flex justify-center">
         <Suspense
           fallback={
-            <div className="animate-pulse opacity-50">
+            <div className="animate-pulse">
               <TodoScore count={0}>{`unknown done tasks`}</TodoScore>
             </div>
           }

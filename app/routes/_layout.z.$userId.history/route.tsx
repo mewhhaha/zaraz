@@ -1,5 +1,10 @@
 import { LoaderFunctionArgs, defer, redirect } from "@remix-run/cloudflare";
-import { Await, Form, useLoaderData } from "@remix-run/react";
+import {
+  Await,
+  ClientLoaderFunctionArgs,
+  Form,
+  useLoaderData,
+} from "@remix-run/react";
 import { authenticate } from "~/utils/auth.server";
 import {
   type Table,
@@ -44,6 +49,14 @@ export const loader = async ({
 
   return defer({
     data: getRecentTodos(context.cloudflare.env.DB, userId),
+    today: new Date().toISOString(),
+  });
+};
+
+export const clientLoader = ({ serverLoader }: ClientLoaderFunctionArgs) => {
+  const data = serverLoader<typeof loader>();
+  return defer({
+    data: data.then((x) => x.data),
     today: new Date().toISOString(),
   });
 };
@@ -157,14 +170,14 @@ const AwaitHistory = ({ children, today, resolve }: AwaitHistoryProps) => {
   return (
     <Suspense
       fallback={
-        <li>
+        <li className="animate-pulse">
           <div className="sticky -top-28 z-10 w-full border-b border-green-500 bg-white py-2">
             <ClientMonth
               className="sticky top-0 text-2xl tracking-widest text-gray-900"
               date={startOfDay(today)}
             />
           </div>
-          <ul className="animate-pulse space-y-1 bg-gray-100 px-10 py-2">
+          <ul className="space-y-1 bg-gray-100 px-10 py-2">
             {new Array(10).fill(
               <SmallRibbon delay={0} transition={false}>
                 {" "}

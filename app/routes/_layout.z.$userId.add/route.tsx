@@ -17,6 +17,10 @@ export const loader = async ({
   return null;
 };
 
+export const clientLoader = async () => {
+  return null;
+};
+
 export default function Route() {
   const [recent, setRecent] = useState<string[]>([]);
 
