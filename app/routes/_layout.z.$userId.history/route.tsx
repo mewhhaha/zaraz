@@ -9,7 +9,6 @@ import {
   useEffect,
   useState,
 } from "react";
-import { swr } from "~/utils/cache.server";
 import { cx } from "~/styles/cx";
 import {
   intlFormat,
@@ -39,13 +38,8 @@ export const loader = async ({
     throw redirect("/403");
   }
 
-  const cacheKey = new Request(request.url, {
-    headers: { "Cache-Control": "max-age=604800" },
-    method: "GET",
-  });
-  const task = getRecentTodos(context.cloudflare.env.DB, userId);
   return defer({
-    data: swr(context.cloudflare, task, { cacheKey, namespace: "todos" }),
+    data: getRecentTodos(context.cloudflare.env.DB, userId),
     today: new Date().toISOString(),
   });
 };
@@ -160,10 +154,12 @@ const AwaitHistory = ({ children, today, resolve }: AwaitHistoryProps) => {
     <Suspense
       fallback={
         <li>
-          <ClientMonth
-            className="text-2xl tracking-widest text-gray-900"
-            date={startOfDay(new Date(today))}
-          />
+          <div className="sticky -top-28 z-10 w-full border-b border-green-500 bg-white py-2">
+            <ClientMonth
+              className="sticky top-0 text-2xl tracking-widest text-gray-900"
+              date={startOfDay(today)}
+            />
+          </div>
           <ul className="animate-pulse space-y-1 bg-gray-100 px-10 py-2">
             {new Array(10).fill(
               <SmallRibbon delay={0} transition={false}>
@@ -297,7 +293,7 @@ const SmallRibbon = ({
     <div
       {...props}
       className={cx(
-        "bg-green-200 px-4 pb-2 pt-1 duration-300 ease-in-out group-first:rounded-t-xl group-last:rounded-b-xl sm:px-10",
+        "min-h-20 bg-green-200 px-4 pb-2 pt-1 duration-300 ease-in-out group-first:rounded-t-xl group-last:rounded-b-xl sm:px-10",
         appear ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0",
         transition ? "transition-all" : "transition-none",
         props.className,
