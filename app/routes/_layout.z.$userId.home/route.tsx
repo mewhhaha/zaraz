@@ -80,10 +80,10 @@ export default function Route() {
                 <span className="-my-4 bg-gray-400 shadow-xl">{"..."}</span>
               </Ribbon>
 
-              <Button disabled className="h-full">
+              <Button disabled className="h-full border-gray-200 bg-gray-100">
                 Soon
               </Button>
-              <Button disabled className="h-full">
+              <Button disabled className="h-full border-gray-200 bg-gray-100">
                 Done
               </Button>
             </div>
