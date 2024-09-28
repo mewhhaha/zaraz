@@ -1,5 +1,5 @@
 export const swr = async <T>(
-  cf: Cloudflare,
+  cf: CloudflareContext,
   task: Promise<T>,
   { cacheKey, namespace }: { cacheKey: Request; namespace: "todos" },
 ) => {
@@ -26,7 +26,7 @@ export const swr = async <T>(
 };
 
 export const bust = async (
-  cf: Cloudflare,
+  cf: CloudflareContext,
   { cacheKey, namespace }: { cacheKey: Request; namespace: "todos" },
 ) => {
   const cache = await cf.caches.open(namespace);

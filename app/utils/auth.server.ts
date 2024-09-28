@@ -17,7 +17,7 @@ const parseUser = type({
 
 type User = (typeof parseUser)["infer"];
 
-const createUserCookie = (cf: Cloudflare) => {
+const createUserCookie = (cf: CloudflareContext) => {
   return createCookie("user", {
     path: "/",
     sameSite: "lax",
@@ -27,14 +27,14 @@ const createUserCookie = (cf: Cloudflare) => {
   });
 };
 
-export const serializeUserCookie = (cf: Cloudflare, value: User) => {
+export const serializeUserCookie = (cf: CloudflareContext, value: User) => {
   return createUserCookie(cf).serialize(value, {
     expires: new Date(Date.now() + 86400_000),
     maxAge: 86400,
   });
 };
 
-const parseUserCookie = async (cf: Cloudflare, request: Request) => {
+const parseUserCookie = async (cf: CloudflareContext, request: Request) => {
   const value = await createUserCookie(cf).parse(request.headers.get("Cookie"));
 
   const data = parseUser(value);
@@ -112,7 +112,7 @@ const createExchangeRequest = ({
 };
 
 export const putReturnResponse = async (
-  cf: Cloudflare,
+  cf: CloudflareContext,
   state: string,
   url: URL,
 ) => {
@@ -120,13 +120,13 @@ export const putReturnResponse = async (
   cache.put(new Request(new URL(`/${state}`, url.origin)), redirect(url.href));
 };
 
-export const findReturnResponse = async (cf: Cloudflare, url: URL) => {
+export const findReturnResponse = async (cf: CloudflareContext, url: URL) => {
   const cache = await cf.caches.open("redirect");
   const key = new URL(`/${url.searchParams.get("state")}`, url.origin);
   return (await cache.match(key)) as Response | undefined;
 };
 
-export const exchangeCode = async (cf: Cloudflare, url: URL) => {
+export const exchangeCode = async (cf: CloudflareContext, url: URL) => {
   const code = url.searchParams.get("code");
   const error = url.searchParams.get("error");
 
@@ -178,7 +178,7 @@ export const exchangeCode = async (cf: Cloudflare, url: URL) => {
   return { id: token.sub, email: token.email } satisfies User;
 };
 
-export const authenticate = async (cf: Cloudflare, request: Request) => {
+export const authenticate = async (cf: CloudflareContext, request: Request) => {
   const user = await parseUserCookie(cf, request);
   if (!user) {
     const state = crypto.randomUUID();
@@ -196,7 +196,7 @@ export const authenticate = async (cf: Cloudflare, request: Request) => {
   return user;
 };
 
-export const logout = async (cf: Cloudflare, path: string) => {
+export const logout = async (cf: CloudflareContext, path: string) => {
   const cookie = createUserCookie(cf);
 
   return redirect(path, {

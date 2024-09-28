@@ -5,7 +5,6 @@ import jsx from "eslint-plugin-react/configs/jsx-runtime.js";
 import globals from "globals";
 import a11y from "eslint-plugin-jsx-a11y";
 import tailwind from "eslint-plugin-tailwindcss";
-import path from "node:path";
 
 export default tseslint.config(
   eslint.configs.recommended,
