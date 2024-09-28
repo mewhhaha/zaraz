@@ -273,7 +273,7 @@ const Ribbon = ({ animate = true, ...props }: RibbonProps) => {
   const appear = useAppear();
 
   return (
-    <p
+    <div
       {...props}
       className={cx(
         "relative flex grow justify-center text-balance px-10 py-2 text-center text-5xl font-bold text-black decoration-wavy underline-offset-2 md:text-6xl lg:mb-0 lg:text-7xl xl:text-8xl",

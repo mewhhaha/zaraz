@@ -36,7 +36,9 @@ export default function Route() {
       return [name, ...prev];
     });
 
-    target.reset();
+    setTimeout(() => {
+      target.reset();
+    });
   };
 
   return (
