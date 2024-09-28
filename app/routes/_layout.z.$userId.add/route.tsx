@@ -1,6 +1,6 @@
 import { Form, redirect } from "@remix-run/react";
 import { cx } from "~/styles/cx";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "~/components/Button";
 import { LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { authenticate } from "~/utils/auth.server";
@@ -35,9 +35,8 @@ export default function Route() {
     setRecent((prev) => {
       return [name, ...prev];
     });
-    setTimeout(() => {
-      target.reset();
-    });
+
+    target.reset();
   };
 
   return (
@@ -55,12 +54,11 @@ export default function Route() {
             "min-w-0 after:absolute after:inset-0 after:-z-10 after:-skew-x-6 after:bg-blue-300",
           )}
         >
-          <TextArea
+          <AutoTextArea
             required
             rows={1}
             placeholder="?"
             name="name"
-            defaultValue=""
             className="-my-4 w-full min-w-0 grow border-4 border-black bg-blue-400 px-4 text-center text-5xl shadow-xl selection:bg-black selection:text-white placeholder:text-white focus:border-blue-500 md:text-6xl lg:text-7xl xl:text-8xl"
           />
         </div>
@@ -98,26 +96,47 @@ const RecentItem = (props: RecentItemProps) => {
   );
 };
 
-type TextAreaProps = JSX.IntrinsicElements["textarea"];
+type AutoTextAreaProps = JSX.IntrinsicElements["textarea"];
 
-const TextArea = (props: TextAreaProps) => {
+const AutoTextArea = (props: AutoTextAreaProps) => {
+  const ref = useRef<HTMLTextAreaElement>(null);
   const [state, setState] = useState(props.defaultValue);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const form = el.closest("form");
+    if (!form) return;
+
+    const handleReset = () => {
+      setState(props.defaultValue);
+    };
+    form.addEventListener("reset", handleReset);
+
+    return () => {
+      form.removeEventListener("reset", handleReset);
+    };
+  });
+
   return (
     <div className="grid grow">
       <textarea
+        ref={ref}
         {...props}
         onChange={(event) => {
           setState(event.currentTarget.value);
           props.onChange?.(event);
         }}
-        onReset={() => {
+        onReset={(event) => {
           setState(props.defaultValue);
+          props.onReset?.(event);
         }}
         className={cx(
           "resize-none overflow-hidden whitespace-pre-wrap [grid-area:1/1/2/2]",
           props.className,
         )}
       />
+
       <div
         role="presentation"
         style={props.style}
