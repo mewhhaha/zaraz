@@ -16,6 +16,14 @@ if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
   });
 }
 
+export const headers = () => {
+  return {
+    "Strict-Transport-Security": "max-age=31536000",
+  };
+};
+
+export const loader = () => {};
+
 export function Layout({ children }: { children: React.ReactNode }) {
   const nonce = useContext(NonceContext);
   const [scanlines, setScanlines] = useState(true);
