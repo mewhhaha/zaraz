@@ -22,8 +22,6 @@ export const headers = () => {
   };
 };
 
-export const loader = () => {};
-
 export function Layout({ children }: { children: React.ReactNode }) {
   const nonce = useContext(NonceContext);
   const [scanlines, setScanlines] = useState(true);
